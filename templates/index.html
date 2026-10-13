@@ -79,7 +79,7 @@
                 class="category-card escuela"
                 href="{{ url_for(
                     'inicio',
-                    categoria='Libros de la escuela'
+                    categoria='Libros de la escuela', _anchor='libros'
                 ) }}"
             >
 
@@ -112,7 +112,7 @@
                 class="category-card ficcion"
                 href="{{ url_for(
                     'inicio',
-                    categoria='Ficción'
+                    categoria='Ficción', _anchor='libros'
                 ) }}"
             >
 
@@ -145,7 +145,7 @@
                 class="category-card terror"
                 href="{{ url_for(
                     'inicio',
-                    categoria='Terror'
+                    categoria='Terror', _anchor='libros'
                 ) }}"
             >
 
@@ -178,7 +178,7 @@
                 class="category-card romance"
                 href="{{ url_for(
                     'inicio',
-                    categoria='Romance'
+                    categoria='Romance', _anchor='libros'
                 ) }}"
             >
 
@@ -321,6 +321,16 @@
 
 
 
+        <div class="col-12">
+            <label class="form-label">Imagen de portada (opcional)</label>
+            <input id="portada-nueva" type="file" name="portada" class="form-control" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
+            <div class="form-text">Elige una foto de tu dispositivo (JPG, PNG o WEBP). La imagen se guardará con el libro.</div>
+            <div class="portada-preview-wrap mt-3" id="portada-preview-wrap" hidden>
+                <span class="form-text d-block mb-2">Vista previa de la portada:</span>
+                <img id="portada-preview" class="portada-preview" alt="Vista previa de la portada elegida">
+            </div>
+        </div>
+
         <!-- PDF -->
 
         <div class="col-12">
@@ -426,10 +436,7 @@
 
 
             <p class="text-secondary mb-0">
-
-                {{ libros|length }}
-                libro(s) encontrado(s).
-
+                {{ libros|length }} libro(s) encontrado(s). Usa los botones de cada tarjeta para leer, editar o eliminar.
             </p>
 
         </div>
@@ -448,26 +455,17 @@
 
 
             <article class="book-card h-100">
-
-
-                <div class="pdf-cover">
-
-                    <div class="pdf-icon">
-
-                        📄
-
-                    </div>
-
-
-                    <span>
-
-                        PDF
-
-                    </span>
-
-                </div>
-
-
+                <a class="book-cover {{ libro.categoria|lower|replace(' ', '-') }}" href="{{ url_for('ver_pdf', id=libro._id) }}" target="_blank" rel="noopener" aria-label="Leer {{ libro.titulo }}">
+                    {% if libro.get('portada_id') %}
+                        <img src="{{ url_for('ver_portada', id=libro._id) }}" alt="Portada de {{ libro.titulo }}">
+                        <span class="cover-image-title">{{ libro.titulo }}</span>
+                    {% else %}
+                        <span class="cover-decoration">{% if libro.categoria == 'Libros de la escuela' %}🎓{% elif libro.categoria == 'Ficción' %}✨{% elif libro.categoria == 'Terror' %}🌙{% else %}💗{% endif %}</span>
+                        <span class="cover-label">LIBRERÍA HONEY</span>
+                        <strong>{{ libro.titulo }}</strong>
+                        <span class="cover-cta">Abrir libro ↗</span>
+                    {% endif %}
+                </a>
 
                 <div
                     class="p-4 d-flex
@@ -506,80 +504,24 @@
 
 
 
-                    <div
-                        class="d-flex gap-2
-                               flex-wrap mt-auto"
-                    >
-
-
-                        <a
-
-                            class="btn btn-sm btn-honey"
-
-                            target="_blank"
-
-                            href="{{ url_for(
-                                'ver_pdf',
-                                id=libro._id
-                            ) }}"
-
-                        >
-
+                    <div class="book-actions mt-3" aria-label="Acciones para {{ libro.titulo }}">
+                        <a class="btn btn-honey" target="_blank" rel="noopener"
+                           href="{{ url_for('ver_pdf', id=libro._id) }}">
                             📖 Leer PDF
-
                         </a>
 
-
-
-                        <a
-
-                            class="btn btn-sm
-                                   btn-outline-dark"
-
-                            href="{{ url_for(
-                                'editar',
-                                id=libro._id
-                            ) }}"
-
-                        >
-
-                            Editar
-
+                        <a class="btn btn-edit-book"
+                           href="{{ url_for('editar', id=libro._id) }}">
+                            ✏️ Editar
                         </a>
 
-
-
-                        <form
-
-                            method="post"
-
-                            action="{{ url_for(
-                                'eliminar',
-                                id=libro._id
-                            ) }}"
-
-                            onsubmit="return confirm(
-                                '¿Quieres eliminar este libro y su PDF?'
-                            );"
-
-                        >
-
-                            <button
-
-                                class="btn btn-sm
-                                       btn-outline-danger"
-
-                                type="submit"
-
-                            >
-
-                                Eliminar
-
+                        <form class="delete-book-form" method="post"
+                              action="{{ url_for('eliminar', id=libro._id) }}"
+                              onsubmit="return confirm('¿Seguro que quieres eliminar «{{ libro.titulo }}» y su PDF? Esta acción no se puede deshacer.');">
+                            <button class="btn btn-delete-book" type="submit">
+                                🗑️ Eliminar
                             </button>
-
                         </form>
-
-
                     </div>
 
 
@@ -636,5 +578,25 @@
 
 </section>
 
+
+<script>
+(() => {
+  const input = document.getElementById('portada-nueva');
+  const preview = document.getElementById('portada-preview');
+  const wrap = document.getElementById('portada-preview-wrap');
+  if (!input || !preview || !wrap) return;
+  let currentUrl = null;
+  input.addEventListener('change', () => {
+    const file = input.files && input.files[0];
+    if (currentUrl) URL.revokeObjectURL(currentUrl);
+    if (!file) { wrap.hidden = true; preview.removeAttribute('src'); return; }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      input.value = ''; wrap.hidden = true; alert('Elige una imagen JPG, PNG o WEBP.'); return;
+    }
+    currentUrl = URL.createObjectURL(file);
+    preview.src = currentUrl; wrap.hidden = false;
+  });
+})();
+</script>
 
 {% endblock %}

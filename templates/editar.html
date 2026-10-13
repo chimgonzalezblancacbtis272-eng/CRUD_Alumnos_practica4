@@ -115,6 +115,19 @@
 
 
                 <div class="col-12">
+                    <label class="form-label">Cambiar imagen de portada (opcional)</label>
+                    {% if libro.get('portada_id') %}
+                    <div class="mb-2"><img src="{{ url_for('ver_portada', id=libro._id) }}" alt="Portada actual" style="max-height:180px;max-width:140px;border-radius:12px;object-fit:cover"></div>
+                    {% endif %}
+                    <input id="portada-editar" type="file" name="portada" class="form-control" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
+                    <div class="form-text">Puedes elegir una foto de tu dispositivo. Si no eliges otra, se conserva la portada actual.</div>
+                    <div class="mt-3" id="preview-editar-wrap" hidden>
+                        <span class="form-text d-block mb-2">Vista previa de la nueva portada:</span>
+                        <img id="preview-editar" class="portada-preview" alt="Vista previa de la nueva portada">
+                    </div>
+                </div>
+
+                <div class="col-12">
 
                     <label class="form-label">
 
@@ -213,5 +226,22 @@
 
 </div>
 
+
+<script>
+(() => {
+ const input = document.getElementById('portada-editar');
+ const img = document.getElementById('preview-editar');
+ const wrap = document.getElementById('preview-editar-wrap');
+ if (!input || !img || !wrap) return;
+ let objectUrl;
+ input.addEventListener('change', () => {
+   const file = input.files && input.files[0];
+   if (objectUrl) URL.revokeObjectURL(objectUrl);
+   if (!file) { wrap.hidden = true; return; }
+   if (!['image/jpeg','image/png','image/webp'].includes(file.type)) { input.value=''; wrap.hidden=true; alert('Elige una imagen JPG, PNG o WEBP.'); return; }
+   objectUrl = URL.createObjectURL(file); img.src = objectUrl; wrap.hidden = false;
+ });
+})();
+</script>
 
 {% endblock %}

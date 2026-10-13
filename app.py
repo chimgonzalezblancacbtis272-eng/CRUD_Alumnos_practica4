@@ -123,6 +123,25 @@ def guardar_pdf(archivo, titulo):
 # LEER LOS DATOS DEL FORMULARIO
 # ==========================================
 
+def guardar_portada(archivo, titulo):
+    """Guarda una imagen opcional de portada en GridFS."""
+    if not archivo or not archivo.filename:
+        return None
+    nombre = archivo.filename.lower()
+    extensiones = {".jpg", ".jpeg", ".png", ".webp"}
+    extension = os.path.splitext(nombre)[1]
+    if extension not in extensiones:
+        abort(400, description="La portada debe ser JPG, PNG o WEBP.")
+    return pdfs.upload_from_stream(
+        f"portada-{os.path.basename(archivo.filename)}",
+        archivo.stream,
+        metadata={"titulo": titulo, "tipo": "portada", "contentType": {
+            ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+            ".png": "image/png", ".webp": "image/webp"
+        }[extension]}
+    )
+
+
 def leer_formulario():
 
     titulo = request.form.get(
@@ -251,6 +270,9 @@ def agregar():
     datos["pdf_id"] = pdf_id
 
     datos["nombre_pdf"] = archivo.filename
+    portada = guardar_portada(request.files.get("portada"), datos["titulo"])
+    if portada:
+        datos["portada_id"] = portada
 
 
     try:
@@ -273,6 +295,20 @@ def agregar():
 # ==========================================
 # VER PDF
 # ==========================================
+
+@app.route("/portada/<id>")
+def ver_portada(id):
+    libro = buscar_libro(id)
+    portada_id = libro.get("portada_id")
+    if not portada_id:
+        abort(404, description="Este libro no tiene portada personalizada.")
+    try:
+        archivo = pdfs.open_download_stream(portada_id)
+    except Exception:
+        abort(404, description="No se encontró la portada.")
+    tipo = (archivo.metadata or {}).get("contentType", "image/jpeg")
+    return send_file(archivo, mimetype=tipo, as_attachment=False)
+
 
 @app.route("/pdf/<id>")
 def ver_pdf(id):
@@ -356,6 +392,12 @@ def editar(id):
 
             datos["nombre_pdf"] = archivo.filename
 
+        portada_archivo = request.files.get("portada")
+        nueva_portada_id = guardar_portada(portada_archivo, datos["titulo"])
+        portada_anterior = libro.get("portada_id")
+        if nueva_portada_id:
+            datos["portada_id"] = nueva_portada_id
+
 
         libros.update_one(
 
@@ -368,6 +410,12 @@ def editar(id):
             }
         )
 
+
+        if nueva_portada_id and portada_anterior:
+            try:
+                pdfs.delete(portada_anterior)
+            except Exception:
+                pass
 
         # Eliminar PDF anterior si fue reemplazado
         if nuevo_pdf_id and pdf_anterior:
@@ -424,6 +472,12 @@ def eliminar(id):
 
             pass
 
+
+    if libro.get("portada_id"):
+        try:
+            pdfs.delete(libro["portada_id"])
+        except Exception:
+            pass
 
     # Eliminar los datos del libro
     libros.delete_one(

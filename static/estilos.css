@@ -1,18 +1,18 @@
 body {
-    background: #fffaf0;
-    color: #3f3326;
+    background: #240505;
+    color: #c9af87;
 }
 
 
 .honey-nav {
-    background: #5b4636;
+    background: #1a0000;
 }
 
 
 .hero {
     background: linear-gradient(
         135deg,
-        #fff0b8,
+        #1a0000,
         #ffe1a8
     );
 
@@ -59,7 +59,7 @@ body {
         0 10px 25px
         rgba(0,0,0,.10);
 
-    color: #3f3326;
+    color: #704920;
 }
 
 
@@ -81,22 +81,27 @@ body {
 
 
 .escuela {
-    background: #dff2ff;
+    background: #af8a59;
+    color:#240505;
 }
 
 
 .ficcion {
-    background: #e8ddff;
+    background: #a38559;
+    color:#240505
 }
 
 
 .terror {
-    background: #e2e7e8;
+    background: #ffd5a1;
+    color:#341010
+
 }
 
 
 .romance {
-    background: #ffdce7;
+    background:#d3bd8f ;
+    color:#240505
 }
 
 
@@ -111,13 +116,13 @@ body {
 .book-card,
 .empty-state {
 
-    background: white;
+    background: rgb(66 22 22);
 
     border-radius: 22px;
 
     box-shadow:
         0 7px 25px
-        rgba(91, 70, 54, .08);
+        rgba(255, 196, 113, 0.99);
 }
 
 
@@ -149,7 +154,7 @@ body {
 
     border-color: #d79d22;
 
-    color: #3f3326;
+    color: #246b18;
 
 }
 
@@ -234,3 +239,91 @@ footer {
     color: #8a6f59;
 
 }
+/* Estantería visual de libros */
+.book-cover {
+    min-height: 270px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    text-decoration: none;
+    color: #32100e;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at top right, #ffe4ad, transparent 42%), linear-gradient(145deg, #b88d59, #f7dca5);
+    transition: transform .25s ease, filter .25s ease;
+}
+.book-cover:hover { color: #32100e; filter: brightness(1.04); }
+.book-cover img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.cover-decoration { font-size: 3.6rem; filter: drop-shadow(0 5px 8px #6b3d3333); }
+.cover-label { font-size:.68rem; letter-spacing:3px; font-weight:800; opacity:.72; }
+.book-cover strong { font-family: Georgia, serif; font-size:1.45rem; line-height:1.25; max-width:95%; overflow-wrap:anywhere; }
+.cover-cta { margin-top:6px; border:1px solid #5a332c88; border-radius:999px; padding:7px 16px; font-size:.82rem; font-weight:700; }
+.book-cover.ficción { background:linear-gradient(145deg,#8e7bb2,#f0d9ff); }
+.book-cover.terror { background:radial-gradient(circle at 75% 20%,#75556f,transparent 40%),linear-gradient(145deg,#171126,#62435f); color:#fff0d4; }
+.book-cover.romance { background:radial-gradient(circle at 20% 15%,#fff0e8,transparent 38%),linear-gradient(145deg,#e99caa,#ffe0bc); }
+.book-cover.libros-de-la-escuela { background:radial-gradient(circle at 80% 10%,#fff0b8,transparent 38%),linear-gradient(145deg,#6d927d,#d5e4b7); }
+.empty-library { border:1px dashed #bd9366; border-radius:20px; background:#fff8e9; color:#684538; }
+
+
+/* Mejoras para administrar libros y elegir portadas */
+.book-card { color: #f7e7ca; border: 1px solid #8d623b; }
+.book-card .h5 { color: #ffe1a8; overflow-wrap: anywhere; }
+.book-card .pdf-name { color: #e1c9ad; }
+.book-card .btn-outline-dark { color: #fff3dd; border-color: #e6c18a; background: #3b1717; font-weight: 700; }
+.book-card .btn-outline-dark:hover { color: #240505; background: #ffe1a8; }
+.book-card .btn-outline-danger { color: #fff; border-color: #ff9b9b; background: #8f2020; font-weight: 700; }
+.book-card .btn-outline-danger:hover { color: #fff; background: #b82020; }
+.book-card .btn-honey { color: #241008; font-weight: 800; }
+.portada-preview { display: block; max-width: 180px; max-height: 240px; width: auto; height: auto; object-fit: contain; border-radius: 12px; border: 2px solid #e6ad32; box-shadow: 0 5px 18px #0003; }
+.cover-image-title { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 12px; color: #fff; font-weight: 800; font-size: 1.1rem; text-shadow: 0 2px 5px #000; background: linear-gradient(transparent, #180808dc); overflow-wrap: anywhere; }
+.book-cover { border-radius: 18px 18px 0 0; }
+#libros { scroll-margin-top: 90px; }
+.form-text { color: #e1c9ad; }
+
+
+/* Acciones siempre visibles en cada tarjeta de libro */
+.book-actions {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 18px !important;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 224, 177, .35);
+    position: relative;
+    z-index: 5;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.book-actions .btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: .92rem;
+    font-weight: 800;
+    line-height: 1.25;
+    white-space: nowrap;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 6;
+}
+.book-actions .btn-edit-book {
+    background: #fff0c9 !important;
+    color: #32100e !important;
+    border: 2px solid #e6ad32 !important;
+}
+.book-actions .btn-delete-book {
+    background: #a51f2b !important;
+    color: #ffffff !important;
+    border: 2px solid #ffb4b4 !important;
+}
+.book-actions .delete-book-form { display: inline-flex !important; margin: 0; }
+.book-card > div { min-width: 0; }
