@@ -562,9 +562,7 @@ def ayuda():
 # ==========================================
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     app.run(host="127.0.0.1", port=5000, debug=False)
-=======
     puerto = int(os.environ.get("PORT", 5000))
 
     app.run(
@@ -572,4 +570,3 @@ if __name__ == "__main__":
         port=puerto,
         debug=False
     )
->>>>>>> 08ec1c495c09065a9243329869dada18e3c1bf7a
